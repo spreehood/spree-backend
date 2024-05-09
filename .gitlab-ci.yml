@@ -1,0 +1,77 @@
+variables:
+  APP_NAME: spree-backend
+  APP_DEPLOYMENT: $CI_COMMIT_BRANCH
+  BASE_DOCKER_IMAGE: ruby:3.2.0
+  PRODUCTION_URL: https://wosa-api.storemix.io
+
+stages:
+  - build_docker_image
+  - production_deploy
+
+cache:
+  paths:
+    - vendor/
+
+.production_auto_job:
+  rules:
+    - if: $SKIP_DEPLOYMENT == "true"
+      when: never
+    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
+      when: on_success
+
+# ========================== Production Docker Image Build ================================
+
+build_docker_image_production:
+  extends: .production_auto_job
+  stage: build_docker_image
+  image: docker:24.0.6
+  services:
+    - docker:24.0.6-dind
+  before_script:
+    - docker -v
+    - docker login --username $CI_REGISTRY_USER --password $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - export DOCKER_WEB_IMAGE="$CI_REGISTRY/truemark/ecom78/$APP_NAME/main:$CI_COMMIT_SHORT_SHA"
+    - cat $envfile > .env
+    - docker compose -f docker-compose.yml build
+    - docker compose -f docker-compose.yml push
+
+# ============================ Production Build Deploy ======================================
+
+build_deploy_production:
+  extends: .production_auto_job
+  stage: production_deploy
+  image: $BASE_DOCKER_IMAGE
+
+  before_script:
+    - "command -v ssh-agent >/dev/null || ( apt add --update openssh )"
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan $SERVER_IP >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - apt update && apt upgrade -y && apt install -y rsync
+
+  script:
+    - export PROJECT_SLUG="prod_${APP_NAME}"
+    - ssh $SSH_USER@$SERVER_IP mkdir -p /home/deploy/production/$APP_NAME
+
+    - cat $envfile > .env.production
+    - rsync -atv --delete --progress .env.production $SSH_USER@$SERVER_IP:/home/deploy/production/$APP_NAME/.env.production
+
+    - export DOCKER_WEB_IMAGE="$CI_REGISTRY/truemark/ecom78/$APP_NAME/main:$CI_COMMIT_SHORT_SHA"
+    - ssh $SSH_USER@$SERVER_IP docker login --username $CI_REGISTRY_USER --password $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - ssh $SSH_USER@$SERVER_IP docker pull $DOCKER_WEB_IMAGE
+
+    - cat templates/docker-compose.yml | sed -e "s#image_created#$DOCKER_WEB_IMAGE#g" > docker-compose-updated.yml
+    - rsync -atv --delete --progress docker-compose-updated.yml $SSH_USER@$SERVER_IP:/home/deploy/production/$APP_NAME/docker-compose.yml
+
+    - ssh $SSH_USER@$SERVER_IP docker run --privileged --rm tonistiigi/binfmt --install amd64
+    - ssh $SSH_USER@$SERVER_IP "cd production/$APP_NAME && docker compose down -v"
+    - ssh $SSH_USER@$SERVER_IP "cd production/$APP_NAME && docker compose up -d"
+    - cat templates/production.caddy | sed -e "s#:port#spree-web:4000#g" -e "s#CI_BRANCH#${CI_COMMIT_REF_SLUG}#g" > $PROJECT_SLUG.caddy
+    - ssh root@$SERVER_IP mkdir -p /etc/caddy/production/
+    - rsync -atv --delete --progress $PROJECT_SLUG.caddy root@$SERVER_IP:/etc/caddy/production/
+
+    - ssh $SSH_USER@$SERVER_IP docker exec -w /etc/caddy caddy caddy reload

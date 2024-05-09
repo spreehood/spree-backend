@@ -1,0 +1,40 @@
+version: "3.7"
+
+networks:
+  caddy-network:
+    external: true
+
+services:
+  spree-web:
+    image: image_created
+    command: bash -c "bundle exec rails s -b 0.0.0.0 -p 4000"
+    volumes:
+      - "bundle_cache:/bundle"
+    networks:
+      - caddy-network
+      - default
+    platform: linux/amd64
+    env_file:
+      - .env.production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://0.0.0.0:4000/admin"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+      start_interval: 5s
+
+  worker:
+    image: image_created
+    command: bundle exec sidekiq -C config/sidekiq.yml
+    volumes:
+      - "bundle_cache:/bundle"
+    platform: linux/amd64
+    depends_on:
+      spree-web:
+        condition: service_healthy
+    env_file:
+      - .env.production
+
+volumes:
+  bundle_cache:
