@@ -43,7 +43,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile.production
-          platforms: linux/arm64/v7
+          platforms: linux/arm64
           push: true
           labels: ${{ steps.meta.outputs.labels }}
           tags: ghcr.io/spreehood/spree-backend:latest, ghcr.io/spreehood/spree-backend:${{github.ref_name}}
