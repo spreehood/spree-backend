@@ -6,6 +6,41 @@ GIT
       ffi (~> 1.9)
 
 GIT
+  remote: https://github.com/spreehood/spree_multi_vendor.git
+  revision: 615a35ed33f9e9f74c98656a508e5d2ebefecc54
+  specs:
+    spree_multi_vendor (2.5.0)
+      deface (~> 1.0)
+      spree (>= 4.7.0)
+      spree_backend (>= 4.7.0)
+      spree_emails (>= 4.7.0)
+      spree_extension
+
+GIT
+  remote: https://github.com/spreehood/spree_products_qa.git
+  revision: c842a12f2cd8517fb08b580549f9de090112af18
+  branch: 2024
+  specs:
+    spree_products_qa (0.0.1)
+      sidekiq
+      spree_api (>= 2.3.0, < 5.0)
+      spree_backend (>= 2.3.0, < 5.0)
+      spree_core (>= 2.3.0, < 5.0)
+      spree_extension
+
+GIT
+  remote: https://github.com/spreehood/spree_reviews.git
+  revision: e28a1029db739fc20b59e5aff58194251b4c26f6
+  branch: 2024
+  specs:
+    spree_reviews (4.0.0)
+      deface (~> 1.0)
+      spree_api (>= 4.5)
+      spree_backend (>= 4.5)
+      spree_core (>= 4.5)
+      spree_extension
+
+GIT
   remote: https://github.com/spreehood/spree_slider.git
   revision: b8cda9f38fb4fefded743ed5e57f8e7b1e350e60
   branch: 2024
@@ -209,6 +244,12 @@ GEM
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
     date (3.3.4)
+    deface (1.9.0)
+      actionview (>= 5.2)
+      nokogiri (>= 1.6)
+      polyglot
+      railties (>= 5.2)
+      rainbow (>= 2.1.0)
     devise (4.9.4)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
@@ -389,6 +430,7 @@ GEM
       ast (~> 2.4.1)
       racc
     pg (1.5.6)
+    polyglot (0.3.5)
     popper_js (1.16.1)
     protocol-hpack (1.4.3)
     protocol-http (0.26.5)
@@ -794,6 +836,9 @@ DEPENDENCIES
   spree_emails (~> 4.7.0)
   spree_gateway (~> 3.11.0)
   spree_i18n (~> 5.3.0)
+  spree_multi_vendor!
+  spree_products_qa!
+  spree_reviews!
   spree_sample (~> 4.7.0)
   spree_slider!
   spring
