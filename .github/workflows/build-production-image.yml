@@ -12,6 +12,7 @@ env:
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
+    environment: production
     env:
       APP_NAME: spree-backend
       BASE_DOCKER_IMAGE: ruby:3.2.0
@@ -42,7 +43,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile.production
-          platforms: linux/arm64
+          platforms: linux/arm64/v7
           push: true
           labels: ${{ steps.meta.outputs.labels }}
           tags: ghcr.io/spreehood/spree-backend:latest, ghcr.io/spreehood/spree-backend:${{github.ref_name}}
