@@ -44,7 +44,7 @@ jobs:
           platforms: linux/amd64
           push: true
           labels: ${{ steps.meta.outputs.labels }}
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ghcr.io/spreehood/spree-backend:latest, ghcr.io/spreehood/spree-backend:${{github.ref_name}}
 
       - name: Export digest
         run: |
