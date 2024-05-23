@@ -80,7 +80,7 @@ gem 'spree_auth_devise', '~> 4.6.0'
 gem 'spree_i18n', '~> 5.3.0'
 gem 'spree_dev_tools', require: false, group: %w[test development]
 
-gem 'spree_multi_vendor', github: 'spreehood/spree_multi_vendor'
+gem 'spree_multi_vendor', github: 'spreehood/spree_multi_vendor', branch: 'fixes/monkey-patch'
 
 gem 'spree_slider', github: 'spreehood/spree_slider', branch: '2024'
 # gem 'spree_slider', path: '../spree_slider'

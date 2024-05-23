@@ -7,7 +7,8 @@ GIT
 
 GIT
   remote: https://github.com/spreehood/spree_multi_vendor.git
-  revision: 615a35ed33f9e9f74c98656a508e5d2ebefecc54
+  revision: 1d8bb48a7bd5ba0d9b9b6cd9b46afa401ab8c43c
+  branch: fixes/monkey-patch
   specs:
     spree_multi_vendor (2.5.0)
       deface (~> 1.0)
