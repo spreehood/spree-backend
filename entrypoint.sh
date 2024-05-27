@@ -1,8 +1,11 @@
 #!/bin/sh
 set -e
+
+# Run database migrations
 bundle exec rails db:migrate
+
 # Check if an admin user already exists
-admin_exists=$(bundle exec rails runner "puts Spree::User.exists?(email: 'spree@example.com')")
+admin_exists=$(bundle exec rails runner "puts Spree::User.exists?(email: 'spree@example.com').to_s")
 
 # Seed the database if no admin user exists
 if [ "$admin_exists" = "false" ]; then
@@ -10,4 +13,6 @@ if [ "$admin_exists" = "false" ]; then
 else
   echo "Admin user already exists, skipping seeding."
 fi
+
 exec "$@"
+
