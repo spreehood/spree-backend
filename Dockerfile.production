@@ -64,9 +64,12 @@ COPY . .
 # Precompile assets
 RUN SECRET_KEY_BASE=skb DB_ADAPTER=nulldb bundle exec rails assets:precompile
 
+# Set execute permission for entrypoint script
+RUN chmod +x entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]
+
 # Expose port 4000
 EXPOSE 4000
 
 # Default command to run the container
 CMD ["bash"]
-
